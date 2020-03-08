@@ -1,6 +1,3 @@
-
-
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -11,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -33,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
@@ -41,12 +40,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.Keymap;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-
-
-public class Window extends JFrame implements KeyListener {
+public class Window extends JFrame implements Runnable {
 	private JPanel contentPane;
 
 	PortSelector port_selector;
@@ -66,137 +64,121 @@ public class Window extends JFrame implements KeyListener {
 	InputStreamScannerTask input_stream_scanner_task; 
 
 	SerialPortScanner serial_port_scanner;
-
-	public Window() {
-		super("Selfie STM32 Debuger");
-		setPreferredSize(new Dimension(800, 600));
-
-
-		this.setFocusable(true);
-		addKeyListener(this);
-
-		setLocationByPlatform(true);
-		setBounds(100, 100, 800, 600);
-
+	
+	public void run() {
+	//	new Window();
+	}
+	
+	private void addComponents() {
 		contentPane = new JPanel();
 //		contentPane.setSize(new Dimension(800, 600));
 //		contentPane.setPreferredSize(new Dimension(800, 600));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 
+		//KeyBoardScanner kbs = new KeyBoardScanner();
 		console = new Console();
+		//console.addKeyListener(kbs);
 		
 		JPanel testpanel = new JPanel();
 		testpanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
-
 		port_selector = new PortSelector();
 		data_link = new DataLink();
 		connect_button = new ConnectButton(port_selector, data_link);
 		setResizable(false);
+		
 
-
-
-//		spinner = new JSpinner(new SpinnerNumberModel(50,0,255,1));
-//		JSpinner.DefaultEditor editor =
-//				(JSpinner.DefaultEditor)spinner.getEditor();
-//		JFormattedTextField tf = editor.getTextField();
-//		tf.setFormatterFactory(new MyFormatterFactory());
-//		
-//		spinner.addKeyListener(this);
 
 		
 		
-		contentPane.setLayout(new BorderLayout());
-		contentPane.add(testpanel, BorderLayout.NORTH);
+		contentPane.setLayout(new GridBagLayout());
+		
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 3;
+		c.weightx = 1;
+		c.gridwidth  = 3;
+		c.gridx = 0;
+		c.gridy = 0;
+		contentPane.add(testpanel, c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.weightx = 3;
+		c.weightx = 1;
+		c.gridwidth  = 3;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.insets = new Insets(0,0,5,5);
 		testpanel.add(port_selector, c);
 	//	testpanel.add(port_selector);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		c.gridx = 1;
-		c.gridy = 0;
 
-		
-		testpanel.add(connect_button, c);
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		c.gridx = 2;
+	//	c.weightx = 1;
+		c.gridwidth  = 1;
+		c.gridx = 3;
 		c.gridy = 0;
 		
 		JLabel lab = new JLabel("Status", SwingConstants.CENTER);
 		testpanel.add(lab, c);
 		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.weightx = 1;
+		c.gridwidth  = 1;
+		c.gridx = 4;
+		c.gridy = 0;
+
+		
+		testpanel.add(connect_button, c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth  = 2;
+		c.gridheight  = 2;
+		c.gridx = 0;
+		c.gridy = 1;
+		
 	//	contentPane.add(connect_button);
 	//	contentPane.add(port_selector);
-		contentPane.add(console, BorderLayout.WEST);
-		contentPane.add(new ButtonsPanel(data_link), BorderLayout.EAST);
+		contentPane.add(console, c);
+		
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth  = 1;
+		c.gridheight  = 2;
+		c.gridx = 2;
+		c.gridy = 1;
+		contentPane.add(new ButtonsPanel(data_link), c);
 //		add(connect_button);
 //		add(port_selector);
 //		add(console);
+		
+//        Keymap firstNameMap = console.getKeymap();
+//        KeyStroke altF1 = KeyStroke.getKeyStroke(KeyEvent.VK_F1,InputEvent.SHIFT_MASK);
+//        firstNameMap.addActionForKeyStroke(altF1,System.out.print("dup"));
 
 		//pack();
+	}
+
+	private void init() {
+		//this.super("Selfie STM32 Debuger");
+		setTitle("Selfie STM32 Debuger");
+		setPreferredSize(new Dimension(800, 600));
+		this.setFocusable(true);
+		setLocationByPlatform(true);
+		setBounds(100, 100, 800, 600);
+		
+		addComponents();
+		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	public Window(KeyListener key_listner) {
+		init();
+		
+		addKeyListener(key_listner);
 
-	//	input_stream_scanner_task = new InputStreamScannerTask();
-	//	serial_port_scanner = new SerialPortScanner();
-
-	//	input_stream_scanner_task.setConsole(console);
-
-		//serial_port_scanner.setInputSteram(port_selector);
-
-	//	Timer timer1 = new Timer(true);
-	//	timer1.scheduleAtFixedRate(input_stream_scanner_task, 0, 10);
-
-	//	Timer timer2 = new Timer(true);
-		//timer2.scheduleAtFixedRate(serial_port_scanner, 0, 1000);
-
-
-
-
-
-
-
-
-
-
+	
 	}
 
-
-
-	@Override
-	public void keyPressed(KeyEvent evt) {
-		if(selected_serial_port != null && selected_serial_port.isOpen()) {
-		//	try {
-	//			out.write(evt.getKeyChar());
-				console.setText("");
-				//out.write('s');
-		//	} catch (IOException e) {
-				// TODO Auto-generated catch block
-		//		e.printStackTrace();
-		//	}
-		}
-		//	System.out.println(evt.getKeyChar());
-
-	}
-
-	@Override
-	public void keyReleased(KeyEvent evt) {
-		//char c = evt.getKeyChar();
-
-		//System.out.println(c);
-	}
-
-	@Override
-	public void keyTyped(KeyEvent evt) {
-
-	}
 }
 
 

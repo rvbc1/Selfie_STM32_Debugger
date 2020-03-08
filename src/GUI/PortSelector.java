@@ -32,10 +32,10 @@ class MyComboBoxModel extends AbstractListModel implements ComboBoxModel {
 		return selection; 
 	}
 	
-
 	
-	private void update() {
-		SerialPort all_ports [] = SerialPort.getCommPorts();
+	
+	public void update() {
+		all_ports = SerialPort.getCommPorts();
 		if(all_ports.length > 0) {
 			selection = all_ports[0];
 		} else {
@@ -69,10 +69,20 @@ class ItemRenderer extends BasicComboBoxRenderer {
 
 public class PortSelector extends JComboBox{
 	public PortSelector(){
-		setModel(new MyComboBoxModel());
-		setRenderer(new ItemRenderer());
+		MyComboBoxModel mcbm = new MyComboBoxModel();
+		ItemRenderer ir = new ItemRenderer();
+		setModel(mcbm);
+		setRenderer(ir);
 		
+	//	Runnable runner = new PortScanner(mcbm, this);
+	//	Thread threads = new Thread(runner);
+	//	threads.start();
 		
+		checkAblility();
+		
+	}
+	
+	public void checkAblility() {
 		if(getItemCount() > 0) {
 			setEnabled(true);
 		} else {
