@@ -1,72 +1,81 @@
-
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.Scanner;
 
 import com.fazecast.jSerialComm.SerialPort;
 
 
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-import javax.swing.JFrame;
-
-
-
-public class USBLink {
+public class USBLink implements CommunicationPort{
+	private SerialPort serial_port = null;
 	
+	private void init() {
+		
+	}
+	
+	public USBLink() {
+		init();
+	}
+	
+	public USBLink(SerialPort serial_port) {
+		this.serial_port = serial_port;
+		init();
+	}
+	
+	public void changePort(SerialPort serial_port) {
+		this.serial_port = serial_port;
+	}
+	
+	public boolean tryOpen() {
+		if(serial_port.isOpen()) {
+			System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" is already open!");
+		} else {
+			if(serial_port.openPort()) {
+				System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" opened");
+				return true;
+			} else {
+				System.out.println("Problem with opening port \"" + serial_port.getDescriptivePortName() + "\"");
+			}
+		}
+		return false;
+	}
+	
+	public boolean tryClose() {
+		if(serial_port.isOpen()) {
+			if(serial_port.closePort()) {
+				System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" closed");
+				return true;
+			} else {
+				System.out.println("Problem with closing port \"" + serial_port.getDescriptivePortName() + "\"");
+			}
+		} else {
+			System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" is already closed!");
+		}
+		return false;	
+	}
+	
+	public boolean isOpen() {
+		return serial_port.isOpen();
+	}
 
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				new Window();
-//			}
-//		});
-		//		System.out.println("Program started");
-		//		CommPortIdentifier serialPortId;
-		//		Enumeration enumComm;
-		//
-		//		enumComm = CommPortIdentifier.getPortIdentifiers();
-		//		while (enumComm.hasMoreElements()) {
-		//			serialPortId = (CommPortIdentifier) enumComm.nextElement();
-		//			if (serialPortId.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-		//				System.out.println(serialPortId.getName());
-		//			}
-		//		}
-		//
-		//		System.out.println("Finished successfully");
+	public InputStream getInputStream() {
+		return serial_port.getInputStream();
+	}
 
-//		SerialPort all_ports[] = SerialPort.getCommPorts();
-//		for(int i = 0; i < all_ports.length; i++){
-//			System.out.println(all_ports[i].getDescriptivePortName());
-//		}
-//		
-//		SerialPort comPort = SerialPort.getCommPorts()[0];
-//		
-//		comPort.openPort();
-//		comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
-//		InputStream in = comPort.getInputStream();
-//		OutputStream out = comPort.getOutputStream();
-//
-//		Scanner sc = new Scanner(System.in);
-//
-//		try
-//		{
-//			while(true) {
-//				if (sc.hasNextLine()) {	
-//					out.write(sc.nextShort());
-//				}
-//				if(in.available() > 0) {
-//					System.out.print((char)in.read());
-//				}
-//			}
-//		} catch (Exception e) { e.printStackTrace(); }
-//		comPort.closePort();
-//	}
-
+	public OutputStream getOutputStream() {
+		return serial_port.getOutputStream();
+	}
+	
+	public boolean trySend(byte bytes []) {
+		if(isOpen()) {
+			try {
+				getOutputStream().write(bytes);
+				return true;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
 }

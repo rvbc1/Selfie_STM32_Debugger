@@ -8,20 +8,22 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-class MyComboBoxModel extends AbstractListModel implements ComboBoxModel {
-	SerialPort all_ports [] = SerialPort.getCommPorts();
+class MyComboBoxModel extends AbstractListModel implements ComboBoxModel, Event {
 	SerialPort selection = null;
+	private PortScanner port_scanner = null;
 
-	MyComboBoxModel(){
+	MyComboBoxModel(PortScanner port_scanner){
+		this.port_scanner = port_scanner;
+		//port_scanner.addEvent(this);
 		update();
 	}
 
 	public Object getElementAt(int index) {
-		return all_ports[index];
+		return port_scanner.getPorts()[index];
 	}
 
 	public int getSize() {
-		return all_ports.length;
+		return port_scanner.getPorts().length;
 	}
 
 	public void setSelectedItem(Object anItem) {
@@ -31,13 +33,10 @@ class MyComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	public Object getSelectedItem() {
 		return selection; 
 	}
-	
-	
-	
+
 	public void update() {
-		all_ports = SerialPort.getCommPorts();
-		if(all_ports.length > 0) {
-			selection = all_ports[0];
+		if(port_scanner.getPorts().length > 0) {
+			selection = port_scanner.getPorts()[0];
 		} else {
 			selection = null;
 		}
@@ -47,6 +46,11 @@ class MyComboBoxModel extends AbstractListModel implements ComboBoxModel {
 }
 
 class ItemRenderer extends BasicComboBoxRenderer {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected,
@@ -67,21 +71,26 @@ class ItemRenderer extends BasicComboBoxRenderer {
 }
 
 
-public class PortSelector extends JComboBox{
-	public PortSelector(){
-		MyComboBoxModel mcbm = new MyComboBoxModel();
-		ItemRenderer ir = new ItemRenderer();
+public class PortSelector extends JComboBox implements Event{
+	MyComboBoxModel mcbm = null;
+	ItemRenderer ir = null;
+	public PortSelector(PortScanner port_scanner){
+		mcbm = new MyComboBoxModel(port_scanner);
+		ir = new ItemRenderer();
+		port_scanner.addEvent(mcbm);
+		port_scanner.addEvent(this);
+
 		setModel(mcbm);
 		setRenderer(ir);
-		
-	//	Runnable runner = new PortScanner(mcbm, this);
-	//	Thread threads = new Thread(runner);
-	//	threads.start();
-		
-		checkAblility();
-		
+
+		//	Runnable runner = new PortScanner(mcbm, this);
+		//	Thread threads = new Thread(runner);
+		//	threads.start();
+
+		update();
+
 	}
-	
+
 	public void checkAblility() {
 		if(getItemCount() > 0) {
 			setEnabled(true);
@@ -89,9 +98,14 @@ public class PortSelector extends JComboBox{
 			setEnabled(false);
 		}
 	}
-	
+
 	public SerialPort getSelectedSerialPort() {
 		return (SerialPort) getSelectedItem(); 
 	}
-	
+
+	public void update() {	
+		this.updateUI();
+		checkAblility();
+	}
+
 }

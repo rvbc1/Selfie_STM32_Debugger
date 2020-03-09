@@ -1,16 +1,21 @@
+import java.util.Vector;
+
 import com.fazecast.jSerialComm.SerialPort;
 
 public class PortScanner implements Runnable{
 	private SerialPort all_ports [] = null;
-	private PortSelector port_selector = null;
-	private MyComboBoxModel mcbm = null;
+	private Vector <Event> events = new Vector<Event>();
 	
 	public PortScanner() {
 		all_ports = SerialPort.getCommPorts();
-		System.out.println("Founded ports: " + all_ports.length);
+		System.out.println("Available ports: " + all_ports.length);
 		for(int i = 0; i < all_ports.length; i++) {
-			System.out.println(all_ports[i].getDescriptivePortName());
+			System.out.println("\t" + all_ports[i].getDescriptivePortName());
 		}
+	}
+	
+	public SerialPort [] getPorts() {
+		return all_ports;
 	}
 	
 	public void run() {
@@ -26,6 +31,13 @@ public class PortScanner implements Runnable{
 		}
 	}
 	
+	private boolean comparePorts(SerialPort serial_port_1, SerialPort serial_port_2) {
+		if(serial_port_1.getDescriptivePortName().equals(serial_port_2.getDescriptivePortName())) {
+			return true;
+		}
+		return false;
+	}
+	
 	private void searchDiffrences(SerialPort new_ports []) {
 		int ports_changed = -1;
 
@@ -35,7 +47,7 @@ public class PortScanner implements Runnable{
 
 			main_loop : for(int i = 0; i < new_ports.length; i++) {
 				for(int j = 0; j < all_ports.length; j++) {
-					if(new_ports[i].getDescriptivePortName().equals(all_ports[j].getDescriptivePortName())){
+					if(comparePorts(new_ports[i], all_ports[j])){
 						continue main_loop;
 					}
 				}
@@ -48,7 +60,7 @@ public class PortScanner implements Runnable{
 			ports_changed = all_ports.length - new_ports.length;
 			main_loop : for(int i = 0; i < all_ports.length; i++) {
 				for(int j = 0; j < new_ports.length; j++) {
-					if(all_ports[i].getDescriptivePortName().equals(new_ports[j].getDescriptivePortName())) {
+					if(comparePorts(all_ports[i], new_ports[j])) {
 							continue main_loop;
 					}
 				}
@@ -61,5 +73,16 @@ public class PortScanner implements Runnable{
 			System.out.println("problem with new ports: " + ports_changed);
 		}
 		all_ports = new_ports;
+		updateEvents();
+	}
+	
+	public void addEvent(Event event) {
+		events.add(event);
+	}
+	
+	private void updateEvents() {
+		for(int i = 0; i < events.size(); i++) {
+			events.get(i).update();
+		}
 	}
 }

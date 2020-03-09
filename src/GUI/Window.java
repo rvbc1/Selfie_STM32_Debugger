@@ -69,7 +69,7 @@ public class Window extends JFrame implements Runnable {
 	//	new Window();
 	}
 	
-	private void addComponents() {
+	private void addComponents(PortScanner port_scanner) {
 		contentPane = new JPanel();
 //		contentPane.setSize(new Dimension(800, 600));
 //		contentPane.setPreferredSize(new Dimension(800, 600));
@@ -78,13 +78,12 @@ public class Window extends JFrame implements Runnable {
 
 		//KeyBoardScanner kbs = new KeyBoardScanner();
 		console = new Console();
-		//console.addKeyListener(kbs);
 		
 		JPanel testpanel = new JPanel();
 		testpanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
-		port_selector = new PortSelector();
+		port_selector = new PortSelector(port_scanner);
 		data_link = new DataLink();
 		connect_button = new ConnectButton(port_selector, data_link);
 		setResizable(false);
@@ -157,8 +156,13 @@ public class Window extends JFrame implements Runnable {
 
 		//pack();
 	}
+	
+	private void addKeyListnerToComonents(KeyListener key_listner) {
+		this.addKeyListener(key_listner);
+		console.addKeyListener(key_listner);
+	}
 
-	private void init() {
+	private void init(PortScanner port_scanner) {
 		//this.super("Selfie STM32 Debuger");
 		setTitle("Selfie STM32 Debuger");
 		setPreferredSize(new Dimension(800, 600));
@@ -166,16 +170,14 @@ public class Window extends JFrame implements Runnable {
 		setLocationByPlatform(true);
 		setBounds(100, 100, 800, 600);
 		
-		addComponents();
+		addComponents(port_scanner);
 		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	public Window(KeyListener key_listner) {
-		init();
-		
-		addKeyListener(key_listner);
-
+	public Window(KeyListener key_listner, PortScanner port_scanner) {
+		init(port_scanner);
+		addKeyListnerToComonents(key_listner);
 	
 	}
 
