@@ -31,6 +31,8 @@ public class USBLink implements CommunicationPort{
 			System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" is already open!");
 		} else {
 			if(serial_port.openPort()) {
+				serial_port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+				serial_port.setBaudRate(115200);
 				System.out.println("Port \"" + serial_port.getDescriptivePortName() + "\" opened");
 				return true;
 			} else {

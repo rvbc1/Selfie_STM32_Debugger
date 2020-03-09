@@ -89,7 +89,7 @@ public class Window extends JFrame implements Runnable {
 		setContentPane(contentPane);
 
 		//KeyBoardScanner kbs = new KeyBoardScanner();
-		console = new Console();
+		console = new Console(data_link);
 
 		JPanel testpanel = new JPanel();
 		testpanel.setLayout(new GridBagLayout());
