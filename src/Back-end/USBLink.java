@@ -78,4 +78,28 @@ public class USBLink implements CommunicationPort{
 		}
 		return false;
 	}
+
+	public String getName() {
+		return serial_port.getDescriptivePortName();
+	}
+	
+    public boolean equals(Object o) { 
+    	  
+        // If the object is compared with itself then return true   
+        if (o == this) { 
+            return true; 
+        } 
+  
+        /* Check if o is an instance of Complex or not 
+          "null instanceof [type]" also returns false */
+        if (!(o instanceof USBLink)) { 
+            return false; 
+        } 
+          
+        // typecast o to Complex so that we can compare data members  
+        USBLink usb_o = (USBLink) o; 
+          
+        // Compare the data members and return accordingly  
+	    return this.getName().equals(usb_o.getName());
+    } 
 }

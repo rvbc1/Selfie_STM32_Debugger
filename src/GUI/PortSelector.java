@@ -9,7 +9,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import com.fazecast.jSerialComm.SerialPort;
 
 class MyComboBoxModel extends AbstractListModel implements ComboBoxModel, Event {
-	SerialPort selection = null;
+	//CommunicationPort selection = null;
+	CommunicationPort selection = null;
 	private PortScanner port_scanner = null;
 
 	MyComboBoxModel(PortScanner port_scanner){
@@ -27,16 +28,26 @@ class MyComboBoxModel extends AbstractListModel implements ComboBoxModel, Event 
 	}
 
 	public void setSelectedItem(Object anItem) {
-		selection = (SerialPort) anItem; 
+		selection = (CommunicationPort) anItem; 
 	} 
 
 	public Object getSelectedItem() {
 		return selection; 
 	}
+	
+	private boolean isStillSlection() {
+		for(int i = 0; i < port_scanner.getPorts().length; i++) {
+			if(port_scanner.getPorts()[i].equals(selection))
+				return true;
+		}
+		return false;
+	}
 
 	public void update() {
 		if(port_scanner.getPorts().length > 0) {
-			selection = port_scanner.getPorts()[0];
+			if((selection == null) || (isStillSlection() == false)) {
+				selection = port_scanner.getPorts()[0];
+			}
 		} else {
 			selection = null;
 		}
@@ -56,9 +67,9 @@ class ItemRenderer extends BasicComboBoxRenderer {
 		super.getListCellRendererComponent(list, value, index, isSelected,
 				cellHasFocus);
 		if(value != null) {
-			SerialPort item = (SerialPort) value;
+			CommunicationPort item = (CommunicationPort) value;
 
-			setText(item.getDescriptivePortName());
+			setText(item.getName());
 			setIcon(null);
 
 		} else {
@@ -71,9 +82,11 @@ class ItemRenderer extends BasicComboBoxRenderer {
 }
 
 
-public class PortSelector extends JComboBox implements Event{
-	MyComboBoxModel mcbm = null;
-	ItemRenderer ir = null;
+public class PortSelector extends JComboBox implements Event, Runnable{
+	private MyComboBoxModel mcbm = null;
+	private ItemRenderer ir = null;
+	private boolean connected = false;
+	
 	public PortSelector(PortScanner port_scanner){
 		mcbm = new MyComboBoxModel(port_scanner);
 		ir = new ItemRenderer();
@@ -88,7 +101,8 @@ public class PortSelector extends JComboBox implements Event{
 		//	threads.start();
 
 		update();
-
+		
+		new Thread(this).start();
 	}
 
 	public void checkAblility() {
@@ -99,8 +113,8 @@ public class PortSelector extends JComboBox implements Event{
 		}
 	}
 
-	public SerialPort getSelectedSerialPort() {
-		return (SerialPort) getSelectedItem(); 
+	public CommunicationPort getSelectedSerialPort() {
+		return (CommunicationPort) getSelectedItem(); 
 	}
 
 	public void update() {	
@@ -108,4 +122,24 @@ public class PortSelector extends JComboBox implements Event{
 		checkAblility();
 	}
 
+	
+	public void run() {
+		while(true) {
+			if(connected != getSelectedSerialPort().isOpen()) {
+				connected = getSelectedSerialPort().isOpen();
+				if(getSelectedSerialPort().isOpen()) {
+					setEnabled(false);
+				} else {
+					setEnabled(true);
+				}
+			}
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }

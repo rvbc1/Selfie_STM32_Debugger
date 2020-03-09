@@ -8,4 +8,6 @@ public interface CommunicationPort {
 	public InputStream getInputStream();
 	public OutputStream getOutputStream();
 	public boolean trySend(byte bytes []);
+	public String getName();
+	public boolean equals(Object o);
 }

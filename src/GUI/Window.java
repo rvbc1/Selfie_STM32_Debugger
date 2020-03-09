@@ -158,7 +158,7 @@ public class Window extends JFrame implements Runnable {
 	}
 	
 	private void addKeyListnerToComonents(KeyListener key_listner) {
-		this.addKeyListener(key_listner);
+		//this.addKeyListener(key_listner);
 		console.addKeyListener(key_listner);
 	}
 
@@ -175,6 +175,7 @@ public class Window extends JFrame implements Runnable {
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	
 	public Window(KeyListener key_listner, PortScanner port_scanner) {
 		init(port_scanner);
 		addKeyListnerToComonents(key_listner);
@@ -215,7 +216,7 @@ class InputStreamScannerTask extends TimerTask {
 
 class SerialPortScanner extends TimerTask {
 	JTextField all_ports;
-	@Override
+
 	public void run() {
 		//		if(all_ports.getItemCount() > 0) {
 		//			SerialPort sp = (SerialPort)all_ports.getSelectedItem();

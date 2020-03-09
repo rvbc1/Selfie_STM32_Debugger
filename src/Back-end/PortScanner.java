@@ -14,13 +14,30 @@ public class PortScanner implements Runnable{
 		}
 	}
 	
-	public SerialPort [] getPorts() {
-		return all_ports;
+	public USBLink [] getPorts() {
+	//	System.out.print(all_ports.length);
+		USBLink [] all_usb_ports = new USBLink[all_ports.length];
+	//	System.out.print(all_usb_ports.length);
+		for(int i = 0; i < all_usb_ports.length; i++) {
+			all_usb_ports[i] = new USBLink(all_ports[i]);
+			//all_usb_ports[i].getName();
+			//all_ports[i].getDescriptivePortName();
+		}
+		return all_usb_ports;
+	//	return all_ports;
 	}
 	
 	public void run() {
 		while(true) {
 			checkPorts();
+			
+			
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

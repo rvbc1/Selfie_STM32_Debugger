@@ -3,29 +3,53 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-public class ConnectButton extends JButton{
+public class ConnectButton extends JButton implements Runnable{
 	PortSelector port_selector;
 	DataLink data_link;
+	private boolean connected = false;
+	
 	public ConnectButton(PortSelector port_selector, DataLink data_link) {
 		setText("connect");
 		this.port_selector = port_selector;
 		this.data_link = data_link;
 		addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(data_link.isOpen()) {
-					System.out.print("open");
-					data_link.closePort();
-					setText("connect");
-					port_selector.setEnabled(true);
+				if(connected) {
+					port_selector.getSelectedSerialPort().tryClose();
 				} else {
-					System.out.print("not open");
-					if(data_link.tryOpen(port_selector.getSelectedSerialPort())) {
-						setText("disconnect");
-						port_selector.setEnabled(false);
-					}
+					port_selector.getSelectedSerialPort().tryOpen();
 				}
+
 			}
 		});
+
+		//		Runnable button_runner = this;
+		//		Thread button_thread = new Thread(button_runner);
+		//		button_thread.start();
+		new Thread(this).start();
+	}
+	
+	private void update() {
+		if(connected) {
+			setText("disconnect");
+		} else {
+			setText("connect");
+		}
+	}
+
+	public void run() {
+		while(true) {
+			if(port_selector.getSelectedSerialPort().isOpen() != connected) {
+				connected = port_selector.getSelectedSerialPort().isOpen();
+				update();
+			}
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
