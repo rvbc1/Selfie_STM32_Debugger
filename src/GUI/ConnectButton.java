@@ -4,14 +4,12 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 
 public class ConnectButton extends JButton implements Runnable{
-	PortSelector port_selector;
-	DataLink data_link;
+	private PortSelector port_selector;
 	private boolean connected = false;
 	
-	public ConnectButton(PortSelector port_selector, DataLink data_link) {
+	public ConnectButton(PortSelector port_selector) {
 		setText("connect");
 		this.port_selector = port_selector;
-		this.data_link = data_link;
 		addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(connected) {

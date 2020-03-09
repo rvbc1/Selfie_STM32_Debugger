@@ -10,7 +10,7 @@ public class ButtonsPanel extends JPanel{
 	JButton restart;
 	JButton command;
 
-	DataLink data_link;
+	private DataLink data_link = null;
 	public ButtonsPanel(DataLink data_link) {
 		this.data_link = data_link;
 
@@ -21,7 +21,7 @@ public class ButtonsPanel extends JPanel{
 
 		dfu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				data_link.trySend("R".getBytes());
+				data_link.sendDFU();
 			}
 		});
 
@@ -31,7 +31,7 @@ public class ButtonsPanel extends JPanel{
 		//
 		restart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				data_link.trySend("r".getBytes());
+				data_link.sendReset();
 			}
 		});
 

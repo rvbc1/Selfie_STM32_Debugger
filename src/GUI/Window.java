@@ -49,7 +49,7 @@ public class Window extends JFrame implements Runnable {
 
 	PortSelector port_selector;
 
-	SerialPort selected_serial_port;
+	private CommunicationPort selected_communication_port = null;
 
 	JButton connect_button;
 
@@ -57,50 +57,61 @@ public class Window extends JFrame implements Runnable {
 
 	JSpinner spinner;
 
-	DataLink data_link;
-
-	//SerialPort all_ports [] = SerialPort.getCommPorts();
+	private DataLink data_link;
 
 	InputStreamScannerTask input_stream_scanner_task; 
 
 	SerialPortScanner serial_port_scanner;
-	
+
+
 	public void run() {
-	//	new Window();
+		while(true) {
+			if((selected_communication_port == null)||(selected_communication_port.equals(port_selector.getSelectedSerialPort()) == false)) {
+				selected_communication_port = port_selector.getSelectedSerialPort();
+				data_link.setCommunicationPort(selected_communication_port);
+			} 
+
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
-	
+
 	private void addComponents(PortScanner port_scanner) {
 		contentPane = new JPanel();
-//		contentPane.setSize(new Dimension(800, 600));
-//		contentPane.setPreferredSize(new Dimension(800, 600));
+		//		contentPane.setSize(new Dimension(800, 600));
+		//		contentPane.setPreferredSize(new Dimension(800, 600));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 
 		//KeyBoardScanner kbs = new KeyBoardScanner();
 		console = new Console();
-		
+
 		JPanel testpanel = new JPanel();
 		testpanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
 		port_selector = new PortSelector(port_scanner);
-		data_link = new DataLink();
-		connect_button = new ConnectButton(port_selector, data_link);
+		connect_button = new ConnectButton(port_selector);
 		setResizable(false);
-		
 
 
-		
-		
+
+
+
 		contentPane.setLayout(new GridBagLayout());
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.gridwidth  = 3;
 		c.gridx = 0;
 		c.gridy = 0;
 		contentPane.add(testpanel, c);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		//c.weightx = 3;
 		c.weightx = 1;
@@ -109,54 +120,54 @@ public class Window extends JFrame implements Runnable {
 		c.gridy = 0;
 		c.insets = new Insets(0,0,5,5);
 		testpanel.add(port_selector, c);
-	//	testpanel.add(port_selector);
+		//	testpanel.add(port_selector);
 
 		c.fill = GridBagConstraints.HORIZONTAL;
-	//	c.weightx = 1;
+		//	c.weightx = 1;
 		c.gridwidth  = 1;
 		c.gridx = 3;
 		c.gridy = 0;
-		
+
 		JLabel lab = new JLabel("Status", SwingConstants.CENTER);
 		testpanel.add(lab, c);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		//c.weightx = 1;
 		c.gridwidth  = 1;
 		c.gridx = 4;
 		c.gridy = 0;
 
-		
+
 		testpanel.add(connect_button, c);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth  = 2;
 		c.gridheight  = 2;
 		c.gridx = 0;
 		c.gridy = 1;
-		
-	//	contentPane.add(connect_button);
-	//	contentPane.add(port_selector);
+
+		//	contentPane.add(connect_button);
+		//	contentPane.add(port_selector);
 		contentPane.add(console, c);
-		
-		
+
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridwidth  = 1;
 		c.gridheight  = 2;
 		c.gridx = 2;
 		c.gridy = 1;
 		contentPane.add(new ButtonsPanel(data_link), c);
-//		add(connect_button);
-//		add(port_selector);
-//		add(console);
-		
-//        Keymap firstNameMap = console.getKeymap();
-//        KeyStroke altF1 = KeyStroke.getKeyStroke(KeyEvent.VK_F1,InputEvent.SHIFT_MASK);
-//        firstNameMap.addActionForKeyStroke(altF1,System.out.print("dup"));
+		//		add(connect_button);
+		//		add(port_selector);
+		//		add(console);
+
+		//        Keymap firstNameMap = console.getKeymap();
+		//        KeyStroke altF1 = KeyStroke.getKeyStroke(KeyEvent.VK_F1,InputEvent.SHIFT_MASK);
+		//        firstNameMap.addActionForKeyStroke(altF1,System.out.print("dup"));
 
 		//pack();
 	}
-	
+
 	private void addKeyListnerToComonents(KeyListener key_listner) {
 		//this.addKeyListener(key_listner);
 		console.addKeyListener(key_listner);
@@ -169,17 +180,17 @@ public class Window extends JFrame implements Runnable {
 		this.setFocusable(true);
 		setLocationByPlatform(true);
 		setBounds(100, 100, 800, 600);
-		
+
 		addComponents(port_scanner);
-		
+
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	
-	public Window(KeyListener key_listner, PortScanner port_scanner) {
+
+	public Window(KeyListener key_listner, PortScanner port_scanner, DataLink data_link) {
+		this.data_link = data_link;
 		init(port_scanner);
 		addKeyListnerToComonents(key_listner);
-	
 	}
 
 }

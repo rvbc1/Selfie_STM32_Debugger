@@ -9,6 +9,17 @@ public class DataLink {
 	OutputStream out;
 	private boolean is_open = false;
 	SerialPort serial_port;
+	private CommunicationPort communication_port = null;
+	
+	public DataLink() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public void setCommunicationPort(CommunicationPort communication_port) {
+		this.communication_port = communication_port;
+		System.out.println("Active DataLink on: \"" + this.communication_port.getName() + "\"");
+	}
+	
 	boolean tryOpen(SerialPort selected_serial_port){
 		if(!selected_serial_port.isOpen()) {
 			selected_serial_port.openPort();
@@ -32,7 +43,7 @@ public class DataLink {
 	}
 	
 	boolean isOpen() {
-		return is_open;
+		return communication_port.isOpen();
 	}
 	boolean closePort() {
 	//	input_stream_scanner_task.setInputSteram(null);
@@ -54,12 +65,27 @@ public class DataLink {
 	}
 	void trySend(byte b []){
 		if(isOpen()) {
-			try {
-				out.write(b);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(communication_port.trySend(b)) {
+				System.out.println("Data send successful");
+			} else {
+				System.out.println("Problem with send");
 			}
+		} else {
+			System.out.println("Data not send - port closed");
 		}
+	}
+	
+	void sendChar(char ch) {
+		char [] char_array = new char [1];
+		char_array[0] = ch;
+		trySend(new String(char_array).getBytes());
+	}
+	
+	void sendDFU() {
+		sendChar('R');
+	}
+	
+	void sendReset() {
+		sendChar('r');
 	}
 }
